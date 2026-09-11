@@ -14,5 +14,6 @@ google-genai
 openai
 slowapi==0.1.10
 PyJWT==2.10.1
+argon2-cffi==25.1.0
 
 python-dotenv
