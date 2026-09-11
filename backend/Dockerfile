@@ -1,4 +1,4 @@
-FROM python:3.14-slim
+FROM python:3.13-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
@@ -8,7 +8,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Runtime + native build dependencies
+# Native build dependencies required by packages such as asyncpg/pydantic-core
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         build-essential \
