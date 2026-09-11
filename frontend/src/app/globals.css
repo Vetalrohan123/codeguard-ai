@@ -1,0 +1,180 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  scroll-behavior: smooth;
+  background: #050506;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: #050506;
+  color: #f5f7fa;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+::selection {
+  background: #a78bfa;
+  color: #050506;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050506;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #252831;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #353945;
+}
+
+/* ------------------------------------------------------------
+   Background utilities
+------------------------------------------------------------ */
+
+@utility developer-grid {
+  background-image:
+    linear-gradient(
+      rgba(255, 255, 255, 0.035) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.035) 1px,
+      transparent 1px
+    );
+  background-size: 64px 64px;
+}
+
+@utility heading-gradient {
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #ffffff 35%,
+    #d9d0ff 70%,
+    #a5f3fc 100%
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@utility glass-panel {
+  background: rgba(12, 13, 17, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+/* ------------------------------------------------------------
+   Monaco / existing CodeGuard compatibility
+------------------------------------------------------------ */
+
+.monaco-editor .codeguard-critical {
+  background: rgba(239, 68, 68, 0.14);
+  border-left: 3px solid rgba(239, 68, 68, 0.95);
+}
+
+.monaco-editor .codeguard-high {
+  background: rgba(249, 115, 22, 0.13);
+  border-left: 3px solid rgba(249, 115, 22, 0.95);
+}
+
+.monaco-editor .codeguard-medium {
+  background: rgba(234, 179, 8, 0.12);
+  border-left: 3px solid rgba(234, 179, 8, 0.95);
+}
+
+.monaco-editor .codeguard-low {
+  background: rgba(59, 130, 246, 0.11);
+  border-left: 3px solid rgba(59, 130, 246, 0.95);
+}
+
+.monaco-editor .codeguard-info {
+  background: rgba(148, 163, 184, 0.08);
+  border-left: 3px solid rgba(148, 163, 184, 0.8);
+}
+
+.monaco-editor .codeguard-selected {
+  background: rgba(168, 85, 247, 0.2) !important;
+  border-left: 3px solid rgba(168, 85, 247, 1) !important;
+}
+
+.monaco-editor .codeguard-critical-glyph {
+  width: 6px !important;
+  margin-left: 4px;
+  background: #ef4444;
+}
+
+.monaco-editor .codeguard-high-glyph {
+  width: 6px !important;
+  margin-left: 4px;
+  background: #f97316;
+}
+
+.monaco-editor .codeguard-medium-glyph {
+  width: 6px !important;
+  margin-left: 4px;
+  background: #eab308;
+}
+
+.monaco-editor .codeguard-low-glyph {
+  width: 6px !important;
+  margin-left: 4px;
+  background: #3b82f6;
+}
+
+.monaco-editor .codeguard-info-glyph {
+  width: 6px !important;
+  margin-left: 4px;
+  background: #94a3b8;
+}
+
+/* ------------------------------------------------------------
+   Reduced motion
+------------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
