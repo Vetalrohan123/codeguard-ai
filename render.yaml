@@ -1,0 +1,219 @@
+services:
+
+  - type: web
+    name: codeguard-api
+    runtime: docker
+    plan: starter
+
+    rootDir: backend
+
+    dockerfilePath: ./Dockerfile
+
+    dockerCommand: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port $PORT
+      --proxy-headers
+      --forwarded-allow-ips="*"
+      --workers 2
+
+    healthCheckPath: /api/health
+
+    preDeployCommand: alembic upgrade head
+
+    maxShutdownDelaySeconds: 60
+
+    envVars:
+
+      - key: APP_ENV
+        value: production
+
+      - key: DEBUG
+        value: "false"
+
+      - key: DATABASE_URL
+        sync: false
+
+      - key: REDIS_URL
+        sync: false
+
+      - key: JWT_SECRET
+        generateValue: true
+
+      - key: JWT_ALGORITHM
+        value: HS256
+
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "30"
+
+      - key: REFRESH_TOKEN_EXPIRE_DAYS
+        value: "7"
+
+      - key: COOKIE_SECURE
+        value: "true"
+
+      - key: COOKIE_HTTP_ONLY
+        value: "true"
+
+      - key: COOKIE_SAME_SITE
+        value: none
+
+      - key: CORS_ORIGINS
+        sync: false
+
+      - key: FRONTEND_URL
+        sync: false
+
+      - key: GITHUB_CLIENT_ID
+        sync: false
+
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+
+      - key: GITHUB_REDIRECT_URI
+        sync: false
+
+      - key: GITHUB_WEBHOOK_SECRET
+        sync: false
+
+      - key: GEMINI_API_KEY
+        sync: false
+
+      - key: OPENAI_API_KEY
+        sync: false
+
+      - key: AI_PROVIDER
+        value: gemini
+
+      - key: AI_MODEL
+        sync: false
+
+      - key: AI_FALLBACK_PROVIDER
+        value: openai
+
+      - key: AI_FALLBACK_MODEL
+        sync: false
+
+      - key: AI_TIMEOUT_SECONDS
+        value: "60"
+
+      - key: AI_MAX_RETRIES
+        value: "2"
+
+      - key: AI_RETRY_BASE_DELAY_SECONDS
+        value: "1"
+
+      - key: AI_RETRY_MAX_DELAY_SECONDS
+        value: "8"
+
+      - key: AI_RETRY_JITTER_SECONDS
+        value: "0.25"
+
+
+  # ===========================================================================
+  # CodeGuard AI Celery Worker
+  # ===========================================================================
+
+  - type: worker
+    name: codeguard-worker
+    runtime: docker
+    plan: starter
+
+    rootDir: backend
+
+    dockerfilePath: ./Dockerfile
+
+    dockerCommand: >
+      celery
+      -A app.workers.celery_app.celery_app
+      worker
+      --loglevel=INFO
+      --pool=solo
+
+    maxShutdownDelaySeconds: 120
+
+    envVars:
+
+      - key: APP_ENV
+        value: production
+
+      - key: DEBUG
+        value: "false"
+
+      - key: DATABASE_URL
+        sync: false
+
+      - key: REDIS_URL
+        sync: false
+
+      - key: JWT_SECRET
+        sync: false
+
+      - key: JWT_ALGORITHM
+        value: HS256
+
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "30"
+
+      - key: REFRESH_TOKEN_EXPIRE_DAYS
+        value: "7"
+
+      - key: COOKIE_SECURE
+        value: "true"
+
+      - key: COOKIE_HTTP_ONLY
+        value: "true"
+
+      - key: COOKIE_SAME_SITE
+        value: none
+
+      - key: CORS_ORIGINS
+        sync: false
+
+      - key: FRONTEND_URL
+        sync: false
+
+      - key: GITHUB_CLIENT_ID
+        sync: false
+
+      - key: GITHUB_CLIENT_SECRET
+        sync: false
+
+      - key: GITHUB_REDIRECT_URI
+        sync: false
+
+      - key: GITHUB_WEBHOOK_SECRET
+        sync: false
+
+      - key: GEMINI_API_KEY
+        sync: false
+
+      - key: OPENAI_API_KEY
+        sync: false
+
+      - key: AI_PROVIDER
+        value: gemini
+
+      - key: AI_MODEL
+        sync: false
+
+      - key: AI_FALLBACK_PROVIDER
+        value: openai
+
+      - key: AI_FALLBACK_MODEL
+        sync: false
+
+      - key: AI_TIMEOUT_SECONDS
+        value: "60"
+
+      - key: AI_MAX_RETRIES
+        value: "2"
+
+      - key: AI_RETRY_BASE_DELAY_SECONDS
+        value: "1"
+
+      - key: AI_RETRY_MAX_DELAY_SECONDS
+        value: "8"
+
+      - key: AI_RETRY_JITTER_SECONDS
+        value: "0.25"
