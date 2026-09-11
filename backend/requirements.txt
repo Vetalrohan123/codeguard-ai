@@ -13,5 +13,6 @@ redis==5.2.1
 google-genai
 openai
 slowapi==0.1.10
+PyJWT==2.10.1
 
 python-dotenv
