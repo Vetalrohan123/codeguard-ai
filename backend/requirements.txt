@@ -12,5 +12,6 @@ celery==5.4.0
 redis==5.2.1
 google-genai
 openai
+slowapi==0.1.10
 
 python-dotenv
