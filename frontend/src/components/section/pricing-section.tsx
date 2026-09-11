@@ -21,7 +21,8 @@ type Billing = "monthly" | "yearly";
 const plans = [
   {
     name: "Free",
-    description: "For developers exploring AI-powered code review.",
+    description:
+      "For developers exploring AI-powered code review.",
     monthly: 0,
     yearly: 0,
     popular: false,
@@ -44,7 +45,8 @@ const plans = [
   },
   {
     name: "Pro",
-    description: "For developers who want deeper, repository-aware reviews.",
+    description:
+      "For developers who want deeper, repository-aware reviews.",
     monthly: 29,
     yearly: 24,
     popular: true,
@@ -65,7 +67,8 @@ const plans = [
   },
   {
     name: "Team",
-    description: "For engineering teams building consistent review standards.",
+    description:
+      "For engineering teams building consistent review standards.",
     monthly: 79,
     yearly: 66,
     popular: false,
@@ -154,20 +157,25 @@ function ComparisonValue({
     return <span className="text-zinc-700">—</span>;
   }
 
-  return <span className="text-zinc-300">{value}</span>;
+  return (
+    <span className="text-zinc-300">
+      {value}
+    </span>
+  );
 }
 
 export function PricingSection() {
-  const [billing, setBilling] = useState<Billing>("monthly");
-
-  const annualSavings = billing === "yearly";
+  const [billing, setBilling] =
+    useState<Billing>("monthly");
 
   return (
     <section
       id="pricing"
       className="relative overflow-hidden border-t border-white/[0.06] bg-[#050506] px-4 py-28 sm:px-6 lg:px-8"
     >
-      {/* Background */}
+      {/* =========================================================
+          BACKGROUND
+      ========================================================== */}
       <div className="pointer-events-none absolute inset-0">
         <div
           className="absolute inset-0 opacity-[0.035]"
@@ -184,57 +192,112 @@ export function PricingSection() {
       </div>
 
       <div className="relative mx-auto max-w-7xl">
-        {/* Header */}
+        {/* =========================================================
+            HEADER
+        ========================================================== */}
         <div className="mx-auto max-w-3xl text-center">
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.5 }}
+            initial={{
+              opacity: 0,
+              y: 12,
+            }}
+            whileInView={{
+              opacity: 1,
+              y: 0,
+            }}
+            viewport={{
+              once: true,
+              margin: "-100px",
+            }}
+            transition={{
+              duration: 0.5,
+            }}
             className="mb-5 inline-flex items-center gap-2 rounded-full border border-violet-400/20 bg-violet-400/[0.06] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-violet-300"
           >
             <Sparkles className="h-3.5 w-3.5" />
+
             Simple developer pricing
           </motion.div>
 
           <motion.h2
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6, delay: 0.05 }}
+            initial={{
+              opacity: 0,
+              y: 18,
+            }}
+            whileInView={{
+              opacity: 1,
+              y: 0,
+            }}
+            viewport={{
+              once: true,
+              margin: "-100px",
+            }}
+            transition={{
+              duration: 0.6,
+              delay: 0.05,
+            }}
             className="text-4xl font-semibold tracking-[-0.04em] text-white sm:text-5xl lg:text-6xl"
           >
             Start small.
             <br />
+
             <span className="bg-gradient-to-r from-white via-violet-200 to-cyan-200 bg-clip-text text-transparent">
               Scale with your codebase.
             </span>
           </motion.h2>
 
           <motion.p
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            initial={{
+              opacity: 0,
+              y: 18,
+            }}
+            whileInView={{
+              opacity: 1,
+              y: 0,
+            }}
+            viewport={{
+              once: true,
+              margin: "-100px",
+            }}
+            transition={{
+              duration: 0.6,
+              delay: 0.1,
+            }}
             className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-zinc-400 sm:text-base"
           >
-            Use AI code review when you need it. Upgrade when your repositories
-            and engineering team grow.
+            Use AI code review when you need it.
+            Upgrade when your repositories and
+            engineering team grow.
           </motion.p>
         </div>
 
-        {/* Billing Toggle */}
+        {/* =========================================================
+            BILLING TOGGLE
+        ========================================================== */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.15 }}
+          initial={{
+            opacity: 0,
+            y: 16,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+          }}
+          transition={{
+            duration: 0.5,
+            delay: 0.15,
+          }}
           className="mt-10 flex justify-center"
         >
           <div className="inline-flex items-center gap-1 rounded-2xl border border-white/[0.08] bg-white/[0.025] p-1.5 shadow-2xl shadow-black/20">
             <button
               type="button"
-              onClick={() => setBilling("monthly")}
+              onClick={() =>
+                setBilling("monthly")
+              }
               className={`rounded-xl px-5 py-2.5 text-sm font-medium transition ${
                 billing === "monthly"
                   ? "bg-white text-black shadow-lg"
@@ -246,7 +309,9 @@ export function PricingSection() {
 
             <button
               type="button"
-              onClick={() => setBilling("yearly")}
+              onClick={() =>
+                setBilling("yearly")
+              }
               className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition ${
                 billing === "yearly"
                   ? "bg-white text-black shadow-lg"
@@ -254,6 +319,7 @@ export function PricingSection() {
               }`}
             >
               Yearly
+
               <span
                 className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                   billing === "yearly"
@@ -267,19 +333,33 @@ export function PricingSection() {
           </div>
         </motion.div>
 
-        {/* Plans */}
+        {/* =========================================================
+            PLANS
+        ========================================================== */}
         <div className="mt-14 grid gap-5 lg:grid-cols-3 lg:items-stretch">
           {plans.map((plan, index) => {
             const Icon = plan.icon;
+
             const price =
-              billing === "monthly" ? plan.monthly : plan.yearly;
+              billing === "monthly"
+                ? plan.monthly
+                : plan.yearly;
 
             return (
               <motion.div
                 key={plan.name}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-80px" }}
+                initial={{
+                  opacity: 0,
+                  y: 30,
+                }}
+                whileInView={{
+                  opacity: 1,
+                  y: 0,
+                }}
+                viewport={{
+                  once: true,
+                  margin: "-80px",
+                }}
                 transition={{
                   duration: 0.6,
                   delay: index * 0.08,
@@ -290,21 +370,26 @@ export function PricingSection() {
                     : "border-white/[0.08] bg-white/[0.025]"
                 }`}
               >
-                {/* Recommended */}
+                {/* Recommended top line */}
                 {plan.popular && (
                   <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-400 to-transparent" />
                 )}
 
+                {/* Recommended badge */}
                 {plan.popular && (
                   <div className="absolute right-5 top-5 inline-flex items-center gap-1.5 rounded-full border border-violet-400/25 bg-violet-400/10 px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.14em] text-violet-300">
                     <Crown className="h-3 w-3" />
+
                     Recommended
                   </div>
                 )}
 
+                {/* Plan header */}
                 <div className="p-7 sm:p-8">
                   <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/[0.08] bg-white/[0.04]">
-                    <Icon className={`h-5 w-5 ${plan.iconClass}`} />
+                    <Icon
+                      className={`h-5 w-5 ${plan.iconClass}`}
+                    />
                   </div>
 
                   <h3 className="mt-6 text-xl font-semibold text-white">
@@ -319,23 +404,35 @@ export function PricingSection() {
                   <div className="mt-7 flex items-end gap-2">
                     <motion.span
                       key={`${plan.name}-${billing}`}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
+                      initial={{
+                        opacity: 0,
+                        y: 8,
+                      }}
+                      animate={{
+                        opacity: 1,
+                        y: 0,
+                      }}
                       className="text-5xl font-semibold tracking-[-0.05em] text-white"
                     >
                       ${price}
                     </motion.span>
 
                     <span className="mb-1.5 text-sm text-zinc-600">
-                      {price === 0 ? "forever" : "/ month"}
+                      {price === 0
+                        ? "forever"
+                        : "/ month"}
                     </span>
                   </div>
 
-                  {billing === "yearly" && price > 0 && (
-                    <p className="mt-2 text-xs text-emerald-300">
-                      Billed annually · save ${plan.monthly * 12 - price * 12}
-                    </p>
-                  )}
+                  {/* Annual savings */}
+                  {billing === "yearly" &&
+                    price > 0 && (
+                      <p className="mt-2 text-xs text-emerald-300">
+                        Billed annually · save $
+                        {plan.monthly * 12 -
+                          price * 12}
+                      </p>
+                    )}
 
                   {/* CTA */}
                   <button
@@ -347,11 +444,12 @@ export function PricingSection() {
                     }`}
                   >
                     {plan.cta}
+
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </div>
 
-                {/* Feature divider */}
+                {/* Divider */}
                 <div className="mx-7 h-px bg-white/[0.06] sm:mx-8" />
 
                 {/* Features */}
@@ -361,18 +459,22 @@ export function PricingSection() {
                   </p>
 
                   <ul className="mt-5 space-y-3.5">
-                    {plan.features.map((feature) => (
-                      <li
-                        key={feature}
-                        className="flex items-start gap-3 text-sm text-zinc-300"
-                      >
-                        <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-400/10">
-                          <Check className="h-3 w-3 text-emerald-300" />
-                        </span>
+                    {plan.features.map(
+                      (feature) => (
+                        <li
+                          key={feature}
+                          className="flex items-start gap-3 text-sm text-zinc-300"
+                        >
+                          <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-emerald-400/10">
+                            <Check className="h-3 w-3 text-emerald-300" />
+                          </span>
 
-                        <span>{feature}</span>
-                      </li>
-                    ))}
+                          <span>
+                            {feature}
+                          </span>
+                        </li>
+                      ),
+                    )}
                   </ul>
 
                   {plan.muted.length > 0 && (
@@ -380,18 +482,20 @@ export function PricingSection() {
                       <div className="my-6 h-px bg-white/[0.05]" />
 
                       <ul className="space-y-3.5">
-                        {plan.muted.map((feature) => (
-                          <li
-                            key={feature}
-                            className="flex items-start gap-3 text-sm text-zinc-600"
-                          >
-                            <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-white/[0.06]">
-                              <span className="h-1 w-1 rounded-full bg-zinc-700" />
-                            </span>
+                        {plan.muted.map(
+                          (feature) => (
+                            <li
+                              key={feature}
+                              className="flex items-start gap-3 text-sm text-zinc-600"
+                            >
+                              <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-white/[0.06]">
+                                <span className="h-1 w-1 rounded-full bg-zinc-700" />
+                              </span>
 
-                            {feature}
-                          </li>
-                        ))}
+                              {feature}
+                            </li>
+                          ),
+                        )}
                       </ul>
                     </>
                   )}
@@ -401,12 +505,25 @@ export function PricingSection() {
           })}
         </div>
 
-        {/* Usage Meter */}
+        {/* =========================================================
+            USAGE METER
+        ========================================================== */}
         <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6 }}
+          initial={{
+            opacity: 0,
+            y: 24,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+            margin: "-80px",
+          }}
+          transition={{
+            duration: 0.6,
+          }}
           className="mt-6 overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.025]"
         >
           <div className="grid lg:grid-cols-[1fr_auto]">
@@ -415,34 +532,52 @@ export function PricingSection() {
                 <div>
                   <div className="flex items-center gap-2">
                     <GitPullRequest className="h-4 w-4 text-violet-300" />
+
                     <span className="text-sm font-medium text-white">
                       Review usage
                     </span>
                   </div>
 
                   <p className="mt-1 text-xs text-zinc-500">
-                    Track your monthly review volume as your repositories grow.
+                    Track your monthly review volume as
+                    your repositories grow.
                   </p>
                 </div>
 
                 <div className="font-mono text-xs text-zinc-400">
-                  <span className="text-white">7</span> / 10 reviews
+                  <span className="text-white">
+                    7
+                  </span>{" "}
+                  / 10 reviews
                 </div>
               </div>
 
               <div className="mt-6 h-2 overflow-hidden rounded-full bg-white/[0.06]">
                 <motion.div
-                  initial={{ width: 0 }}
-                  whileInView={{ width: "70%" }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 1, delay: 0.2 }}
+                  initial={{
+                    width: 0,
+                  }}
+                  whileInView={{
+                    width: "70%",
+                  }}
+                  viewport={{
+                    once: true,
+                  }}
+                  transition={{
+                    duration: 1,
+                    delay: 0.2,
+                  }}
                   className="h-full rounded-full bg-gradient-to-r from-violet-500 to-cyan-400"
                 />
               </div>
 
               <div className="mt-3 flex justify-between font-mono text-[10px] text-zinc-600">
                 <span>0</span>
-                <span>FREE PLAN LIMIT</span>
+
+                <span>
+                  FREE PLAN LIMIT
+                </span>
+
                 <span>10</span>
               </div>
             </div>
@@ -457,8 +592,10 @@ export function PricingSection() {
                   <p className="text-sm font-medium text-white">
                     Need more reviews?
                   </p>
+
                   <p className="mt-1 text-xs text-zinc-500">
-                    Upgrade to Pro for unlimited reviews.
+                    Upgrade to Pro for unlimited
+                    reviews.
                   </p>
                 </div>
               </div>
@@ -466,12 +603,25 @@ export function PricingSection() {
           </div>
         </motion.div>
 
-        {/* Comparison */}
+        {/* =========================================================
+            COMPARISON
+        ========================================================== */}
         <motion.div
-          initial={{ opacity: 0, y: 28 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6 }}
+          initial={{
+            opacity: 0,
+            y: 28,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+            margin: "-80px",
+          }}
+          transition={{
+            duration: 0.6,
+          }}
           className="mt-20"
         >
           <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -481,61 +631,95 @@ export function PricingSection() {
               </p>
 
               <h3 className="mt-3 text-2xl font-semibold tracking-tight text-white">
-                Everything you need to review better.
+                Everything you need to review
+                better.
               </h3>
             </div>
 
             <div className="flex items-center gap-2 text-xs text-zinc-500">
               <CircleHelp className="h-3.5 w-3.5" />
-              Demo pricing for the product concept
+
+              Demo pricing for the product
+              concept
             </div>
           </div>
 
           <div className="overflow-hidden rounded-3xl border border-white/[0.08] bg-white/[0.02]">
             <div className="grid grid-cols-4 border-b border-white/[0.06] bg-white/[0.025] px-5 py-4 text-[10px] font-medium uppercase tracking-[0.15em] text-zinc-600 sm:px-7">
               <div>Feature</div>
-              <div className="text-center">Free</div>
-              <div className="text-center text-violet-300">Pro</div>
-              <div className="text-center text-cyan-300">Team</div>
+
+              <div className="text-center">
+                Free
+              </div>
+
+              <div className="text-center text-violet-300">
+                Pro
+              </div>
+
+              <div className="text-center text-cyan-300">
+                Team
+              </div>
             </div>
 
-            {comparisonRows.map((row, index) => (
-              <div
-                key={row.label}
-                className={`grid grid-cols-4 px-5 py-5 text-sm sm:px-7 ${
-                  index !== comparisonRows.length - 1
-                    ? "border-b border-white/[0.05]"
-                    : ""
-                }`}
-              >
-                <div className="text-zinc-300">{row.label}</div>
+            {comparisonRows.map(
+              (row, index) => (
+                <div
+                  key={row.label}
+                  className={`grid grid-cols-4 px-5 py-5 text-sm sm:px-7 ${
+                    index !==
+                    comparisonRows.length - 1
+                      ? "border-b border-white/[0.05]"
+                      : ""
+                  }`}
+                >
+                  <div className="text-zinc-300">
+                    {row.label}
+                  </div>
 
-                <div className="flex justify-center">
-                  <ComparisonValue value={row.free} />
-                </div>
+                  <div className="flex justify-center">
+                    <ComparisonValue
+                      value={row.free}
+                    />
+                  </div>
 
-                <div className="flex justify-center">
-                  <ComparisonValue value={row.pro} />
-                </div>
+                  <div className="flex justify-center">
+                    <ComparisonValue
+                      value={row.pro}
+                    />
+                  </div>
 
-                <div className="flex justify-center">
-                  <ComparisonValue value={row.team} />
+                  <div className="flex justify-center">
+                    <ComparisonValue
+                      value={row.team}
+                    />
+                  </div>
                 </div>
-              </div>
-            ))}
+              ),
+            )}
           </div>
         </motion.div>
 
-        {/* Trust strip */}
+        {/* =========================================================
+            TRUST STRIP
+        ========================================================== */}
         <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
+          initial={{
+            opacity: 0,
+          }}
+          whileInView={{
+            opacity: 1,
+          }}
+          viewport={{
+            once: true,
+          }}
+          transition={{
+            duration: 0.7,
+          }}
           className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-xs text-zinc-600"
         >
           <span className="flex items-center gap-2">
             <Lock className="h-3.5 w-3.5" />
+
             Private repositories
           </span>
 
@@ -543,6 +727,7 @@ export function PricingSection() {
 
           <span className="flex items-center gap-2">
             <ShieldCheck className="h-3.5 w-3.5" />
+
             Permission-scoped access
           </span>
 
@@ -550,20 +735,34 @@ export function PricingSection() {
 
           <span className="flex items-center gap-2">
             <GitPullRequest className="h-3.5 w-3.5" />
+
             Built around pull requests
           </span>
         </motion.div>
 
-        {/* Bottom CTA */}
+        {/* =========================================================
+            BOTTOM CTA
+        ========================================================== */}
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
+          initial={{
+            opacity: 0,
+            y: 18,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+          }}
+          transition={{
+            duration: 0.6,
+          }}
           className="mt-20 text-center"
         >
           <p className="text-sm text-zinc-500">
-            No complicated setup. Connect your repository and start reviewing.
+            No complicated setup. Connect your
+            repository and start reviewing.
           </p>
 
           <button
@@ -571,6 +770,7 @@ export function PricingSection() {
             className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-white transition hover:text-violet-300"
           >
             Explore how it works
+
             <ArrowRight className="h-4 w-4" />
           </button>
         </motion.div>

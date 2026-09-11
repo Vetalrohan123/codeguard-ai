@@ -8,7 +8,6 @@ import {
   Bug,
   Check,
   Code2,
-  GitBranch,
   LockKeyhole,
   Network,
   ScanSearch,
@@ -138,14 +137,13 @@ const accentClasses = {
 } as const;
 
 export function Features() {
-  const [activeFeature, setActiveFeature] = useState("context");
+  const [activeFeature, setActiveFeature] =
+    useState("context");
 
   const active =
-    features.find((feature) => feature.id === activeFeature) ??
-    features[0];
-
-  const activeStyles = accentClasses[active.accent as keyof typeof accentClasses];
-  const ActiveIcon = active.icon;
+    features.find(
+      (feature) => feature.id === activeFeature,
+    ) ?? features[0];
 
   return (
     <section
@@ -167,10 +165,21 @@ export function Features() {
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 22 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6 }}
+          initial={{
+            opacity: 0,
+            y: 22,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+            amount: 0.3,
+          }}
+          transition={{
+            duration: 0.6,
+          }}
           className="max-w-3xl"
         >
           <div className="mb-5 flex items-center gap-3">
@@ -188,24 +197,38 @@ export function Features() {
           <h2 className="max-w-3xl text-3xl font-semibold tracking-[-0.045em] text-white sm:text-4xl lg:text-5xl">
             More than code review.
             <br />
+
             <span className="text-zinc-500">
               Repository-level intelligence.
             </span>
           </h2>
 
           <p className="mt-6 max-w-2xl text-sm leading-7 text-zinc-500 sm:text-base">
-            ReviewAI combines static analysis, repository context, dependency
-            relationships, and AI reasoning to understand why a change matters
+            ReviewAI combines static analysis, repository
+            context, dependency relationships, and AI
+            reasoning to understand why a change matters
             before it tells you what to change.
           </p>
         </motion.div>
 
         {/* Main feature workspace */}
         <motion.div
-          initial={{ opacity: 0, y: 28 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.12 }}
-          transition={{ duration: 0.7, delay: 0.1 }}
+          initial={{
+            opacity: 0,
+            y: 28,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+            amount: 0.12,
+          }}
+          transition={{
+            duration: 0.7,
+            delay: 0.1,
+          }}
           className="mt-14 overflow-hidden rounded-2xl border border-white/[0.08] bg-[#090a0d] shadow-2xl shadow-black/30"
         >
           {/* Workspace header */}
@@ -242,7 +265,9 @@ export function Features() {
               <div className="grid grid-cols-2 gap-1 lg:grid-cols-1">
                 {features.map((feature) => {
                   const Icon = feature.icon;
-                  const isActive = feature.id === activeFeature;
+                  const isActive =
+                    feature.id === activeFeature;
+
                   const styles =
                     accentClasses[
                       feature.accent as keyof typeof accentClasses
@@ -252,7 +277,9 @@ export function Features() {
                     <button
                       key={feature.id}
                       type="button"
-                      onClick={() => setActiveFeature(feature.id)}
+                      onClick={() =>
+                        setActiveFeature(feature.id)
+                      }
                       className={`group relative flex min-h-[74px] items-center gap-3 rounded-xl px-3 text-left transition-colors motion-reduce:transition-none ${
                         isActive
                           ? "bg-white/[0.045]"
@@ -280,7 +307,9 @@ export function Features() {
                       >
                         <Icon
                           className={`size-3.5 ${
-                            isActive ? styles.icon : "text-zinc-600"
+                            isActive
+                              ? styles.icon
+                              : "text-zinc-600"
                           }`}
                         />
                       </span>
@@ -288,7 +317,9 @@ export function Features() {
                       <span className="min-w-0">
                         <span
                           className={`block truncate text-xs font-medium ${
-                            isActive ? "text-zinc-200" : "text-zinc-600"
+                            isActive
+                              ? "text-zinc-200"
+                              : "text-zinc-600"
                           }`}
                         >
                           {feature.title}
@@ -313,10 +344,22 @@ export function Features() {
 
         {/* Capability strip */}
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.6, delay: 0.15 }}
+          initial={{
+            opacity: 0,
+            y: 18,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+            amount: 0.3,
+          }}
+          transition={{
+            duration: 0.6,
+            delay: 0.15,
+          }}
           className="mt-4 grid gap-px overflow-hidden rounded-xl border border-white/[0.06] bg-white/[0.06] sm:grid-cols-3"
         >
           <Capability
@@ -340,10 +383,21 @@ export function Features() {
 
         {/* Bottom statement */}
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
-          transition={{ duration: 0.6 }}
+          initial={{
+            opacity: 0,
+            y: 18,
+          }}
+          whileInView={{
+            opacity: 1,
+            y: 0,
+          }}
+          viewport={{
+            once: true,
+            amount: 0.4,
+          }}
+          transition={{
+            duration: 0.6,
+          }}
           className="mt-16 text-center"
         >
           <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-zinc-700">
@@ -365,18 +419,32 @@ export function Features() {
   );
 }
 
-function AnimateFeature({ feature }: { feature: Feature }) {
+function AnimateFeature({
+  feature,
+}: {
+  feature: Feature;
+}) {
   const styles =
-    accentClasses[feature.accent as keyof typeof accentClasses];
+    accentClasses[
+      feature.accent as keyof typeof accentClasses
+    ];
 
   const Icon = feature.icon;
 
   return (
     <motion.div
       key={feature.id}
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
+      initial={{
+        opacity: 0,
+        y: 12,
+      }}
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+      transition={{
+        duration: 0.35,
+      }}
       className="relative h-full p-6 sm:p-8 lg:p-10"
     >
       <div
@@ -390,7 +458,9 @@ function AnimateFeature({ feature }: { feature: Feature }) {
           <div
             className={`mb-5 flex size-11 items-center justify-center rounded-xl border ${styles.border} ${styles.iconBg}`}
           >
-            <Icon className={`size-5 ${styles.icon}`} />
+            <Icon
+              className={`size-5 ${styles.icon}`}
+            />
           </div>
 
           <div className="flex items-center gap-2">
@@ -431,8 +501,14 @@ function AnimateFeature({ feature }: { feature: Feature }) {
           {feature.tags.map((tag, index) => (
             <motion.div
               key={tag}
-              initial={{ opacity: 0, y: 5 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{
+                opacity: 0,
+                y: 5,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
               transition={{
                 duration: 0.3,
                 delay: 0.08 + index * 0.06,
@@ -451,8 +527,12 @@ function AnimateFeature({ feature }: { feature: Feature }) {
 
               <div className="mt-3 h-1 overflow-hidden rounded-full bg-white/[0.04]">
                 <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${68 + index * 12}%` }}
+                  initial={{
+                    width: 0,
+                  }}
+                  animate={{
+                    width: `${68 + index * 12}%`,
+                  }}
                   transition={{
                     duration: 0.65,
                     delay: 0.15 + index * 0.08,
@@ -467,11 +547,17 @@ function AnimateFeature({ feature }: { feature: Feature }) {
         {/* Terminal-style output */}
         <div className="border-t border-white/[0.06] px-4 py-3">
           <div className="flex items-center gap-2 font-mono text-[9px]">
-            <span className="text-emerald-400/70">✓</span>
+            <span className="text-emerald-400/70">
+              ✓
+            </span>
 
-            <span className="text-zinc-700">context analysis completed</span>
+            <span className="text-zinc-700">
+              context analysis completed
+            </span>
 
-            <span className="ml-auto text-zinc-800">94ms</span>
+            <span className="ml-auto text-zinc-800">
+              94ms
+            </span>
           </div>
         </div>
       </div>
@@ -495,7 +581,9 @@ function Capability({
       </div>
 
       <div className="min-w-0">
-        <p className="text-xs font-medium text-zinc-400">{label}</p>
+        <p className="text-xs font-medium text-zinc-400">
+          {label}
+        </p>
 
         <p className="mt-0.5 truncate font-mono text-[8px] uppercase tracking-wider text-zinc-700">
           {detail}
@@ -506,3 +594,5 @@ function Capability({
     </div>
   );
 }
+
+export default Features;

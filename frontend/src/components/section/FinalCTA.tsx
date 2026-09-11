@@ -279,49 +279,105 @@ export function FinalCTA() {
                 <div className="overflow-x-auto px-3 py-5 sm:px-5">
                   <div className="space-y-1 font-mono text-[10px] leading-6 sm:text-[11px]">
                     <CodeLine number="39">
-                      <span className="text-violet-300">async</span>{" "}
+                      <span className="text-violet-300">
+                        async
+                      </span>{" "}
                       <span className="text-cyan-300">
                         authorizePayment
                       </span>
-                      <span className="text-zinc-500">(</span>
-                      <span className="text-orange-200">paymentId</span>
-                      <span className="text-zinc-500">,</span>{" "}
-                      <span className="text-orange-200">userId</span>
-                      <span className="text-zinc-500">) {"{"}</span>
+                      <span className="text-zinc-500">
+                        (
+                      </span>
+                      <span className="text-orange-200">
+                        paymentId
+                      </span>
+                      <span className="text-zinc-500">
+                        ,
+                      </span>{" "}
+                      <span className="text-orange-200">
+                        userId
+                      </span>
+                      <span className="text-zinc-500">
+                        ) {"{"}
+                      </span>
                     </CodeLine>
 
                     <CodeLine number="40">
-                      <span className="text-violet-300">const</span>{" "}
-                      <span className="text-zinc-300">payment</span>{" "}
-                      <span className="text-zinc-500">=</span>{" "}
-                      <span className="text-violet-300">await</span>{" "}
-                      <span className="text-cyan-300">db</span>
-                      <span className="text-zinc-500">.</span>
-                      <span className="text-cyan-300">payment</span>
-                      <span className="text-zinc-500">.</span>
-                      <span className="text-cyan-300">findUnique</span>
-                      <span className="text-zinc-500">({"{"}</span>
+                      <span className="text-violet-300">
+                        const
+                      </span>{" "}
+                      <span className="text-zinc-300">
+                        payment
+                      </span>{" "}
+                      <span className="text-zinc-500">
+                        =
+                      </span>{" "}
+                      <span className="text-violet-300">
+                        await
+                      </span>{" "}
+                      <span className="text-cyan-300">
+                        db
+                      </span>
+                      <span className="text-zinc-500">
+                        .
+                      </span>
+                      <span className="text-cyan-300">
+                        payment
+                      </span>
+                      <span className="text-zinc-500">
+                        .
+                      </span>
+                      <span className="text-cyan-300">
+                        findUnique
+                      </span>
+                      <span className="text-zinc-500">
+                        ({"{"}
+                      </span>
                     </CodeLine>
 
-                    {/* FIXED: indent={1}, not indent */}
-                    <CodeLine number="41" indent={1}>
-                      <span className="text-orange-200">where</span>
-                      <span className="text-zinc-500">:</span>{" "}
-                      <span className="text-zinc-300">{"{"}</span>
+                    <CodeLine
+                      number="41"
+                      indent={1}
+                    >
+                      <span className="text-orange-200">
+                        where
+                      </span>
+                      <span className="text-zinc-500">
+                        :
+                      </span>{" "}
+                      <span className="text-zinc-300">
+                        {"{"}
+                      </span>
                     </CodeLine>
 
-                    <CodeLine number="42" indent={2}>
-                      <span className="text-orange-200">id</span>
-                      <span className="text-zinc-500">:</span>{" "}
-                      <span className="text-zinc-300">paymentId</span>
+                    <CodeLine
+                      number="42"
+                      indent={2}
+                    >
+                      <span className="text-orange-200">
+                        id
+                      </span>
+                      <span className="text-zinc-500">
+                        :
+                      </span>{" "}
+                      <span className="text-zinc-300">
+                        paymentId
+                      </span>
                     </CodeLine>
 
-                    <CodeLine number="43" indent={1}>
-                      <span className="text-zinc-300">{"}"}</span>
+                    <CodeLine
+                      number="43"
+                      indent={1}
+                    >
+                      <span className="text-zinc-300">
+                        {"}"}
+                      </span>
                     </CodeLine>
 
                     <CodeLine number="44">
-                      <span className="text-zinc-300">{"});"}</span>
+                      <span className="text-zinc-300">
+                        {"});"}
+                      </span>
                     </CodeLine>
 
                     {/* Critical finding */}
@@ -329,43 +385,82 @@ export function FinalCTA() {
                       <div className="absolute -left-2 top-0 h-full w-0.5 rounded-full bg-red-400/70" />
 
                       <CodeLine number="45">
-                        <span className="text-violet-300">if</span>{" "}
-                        <span className="text-zinc-500">(</span>
-                        <span className="text-zinc-300">payment</span>
-                        <span className="text-zinc-500">.</span>
-                        <span className="text-orange-200">userId</span>{" "}
-                        <span className="text-zinc-500">!==</span>{" "}
-                        <span className="text-orange-200">userId</span>
-                        <span className="text-zinc-500">)</span>{" "}
-                        <span className="text-zinc-500">{"{"}</span>
+                        <span className="text-violet-300">
+                          if
+                        </span>{" "}
+                        <span className="text-zinc-500">
+                          (
+                        </span>
+                        <span className="text-zinc-300">
+                          payment
+                        </span>
+                        <span className="text-zinc-500">
+                          .
+                        </span>
+                        <span className="text-orange-200">
+                          userId
+                        </span>{" "}
+                        <span className="text-zinc-500">
+                          !==
+                        </span>{" "}
+                        <span className="text-orange-200">
+                          userId
+                        </span>
+                        <span className="text-zinc-500">
+                          )
+                        </span>{" "}
+                        <span className="text-zinc-500">
+                          {"{"}
+                        </span>
                       </CodeLine>
 
-                      <CodeLine number="46" indent={1}>
-                        <span className="text-violet-300">throw</span>{" "}
-                        <span className="text-violet-300">new</span>{" "}
+                      <CodeLine
+                        number="46"
+                        indent={1}
+                      >
+                        <span className="text-violet-300">
+                          throw
+                        </span>{" "}
+                        <span className="text-violet-300">
+                          new
+                        </span>{" "}
                         <span className="text-cyan-300">
                           ForbiddenError
                         </span>
-                        <span className="text-zinc-500">(</span>
-                        <span className="text-emerald-300">
-                          "Not authorized"
+                        <span className="text-zinc-500">
+                          (
                         </span>
-                        <span className="text-zinc-500">);</span>
+                        <span className="text-emerald-300">
+                          &quot;Not authorized&quot;
+                        </span>
+                        <span className="text-zinc-500">
+                          );
+                        </span>
                       </CodeLine>
 
                       <CodeLine number="47">
-                        <span className="text-zinc-500">{"}"}</span>
+                        <span className="text-zinc-500">
+                          {"}"}
+                        </span>
                       </CodeLine>
                     </div>
 
                     <CodeLine number="48">
-                      <span className="text-violet-300">return</span>{" "}
-                      <span className="text-zinc-300">payment</span>
-                      <span className="text-zinc-500">;</span>
+                      <span className="text-violet-300">
+                        return
+                      </span>{" "}
+                      <span className="text-zinc-300">
+                        payment
+                      </span>
+                      <span className="text-zinc-500">
+                        ;
+                      </span>
                     </CodeLine>
 
                     <CodeLine number="49">
-                      <span className="text-zinc-500">{"}"}</span>
+                      <span className="text-zinc-500">
+                        {"}"}
+                      </span>
                     </CodeLine>
                   </div>
                 </div>
@@ -429,56 +524,79 @@ export function FinalCTA() {
 
                   {/* Analysis steps */}
                   <div className="mt-5 space-y-2">
-                    {analysisSteps.map((step, index) => (
-                      <motion.div
-                        key={step.label}
-                        initial={{ opacity: 0, x: 10 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{
-                          duration: 0.4,
-                          delay: 0.35 + index * 0.08,
-                        }}
-                        className="flex items-center gap-3 rounded-xl border border-white/[0.05] bg-white/[0.02] px-3 py-3"
-                      >
-                        <div
-                          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg ${
-                            step.status === "active"
-                              ? "bg-violet-400/10"
-                              : "bg-emerald-400/10"
-                          }`}
+                    {analysisSteps.map(
+                      (step, index) => (
+                        <motion.div
+                          key={step.label}
+                          initial={{
+                            opacity: 0,
+                            x: 10,
+                          }}
+                          whileInView={{
+                            opacity: 1,
+                            x: 0,
+                          }}
+                          viewport={{
+                            once: true,
+                          }}
+                          transition={{
+                            duration: 0.4,
+                            delay:
+                              0.35 +
+                              index * 0.08,
+                          }}
+                          className="flex items-center gap-3 rounded-xl border border-white/[0.05] bg-white/[0.02] px-3 py-3"
                         >
-                          {step.status === "active" ? (
-                            <CircleDot className="h-3.5 w-3.5 animate-pulse text-violet-300" />
-                          ) : (
-                            <Check className="h-3.5 w-3.5 text-emerald-300" />
-                          )}
-                        </div>
+                          <div
+                            className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg ${
+                              step.status ===
+                              "active"
+                                ? "bg-violet-400/10"
+                                : "bg-emerald-400/10"
+                            }`}
+                          >
+                            {step.status ===
+                            "active" ? (
+                              <CircleDot className="h-3.5 w-3.5 animate-pulse text-violet-300" />
+                            ) : (
+                              <Check className="h-3.5 w-3.5 text-emerald-300" />
+                            )}
+                          </div>
 
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-[10px] text-zinc-300">
-                            {step.label}
-                          </p>
-                        </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-[10px] text-zinc-300">
+                              {step.label}
+                            </p>
+                          </div>
 
-                        <span
-                          className={`font-mono text-[9px] ${
-                            step.status === "active"
-                              ? "text-violet-300"
-                              : "text-zinc-600"
-                          }`}
-                        >
-                          {step.value}
-                        </span>
-                      </motion.div>
-                    ))}
+                          <span
+                            className={`font-mono text-[9px] ${
+                              step.status ===
+                              "active"
+                                ? "text-violet-300"
+                                : "text-zinc-600"
+                            }`}
+                          >
+                            {step.value}
+                          </span>
+                        </motion.div>
+                      ),
+                    )}
                   </div>
 
                   {/* Finding */}
                   <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
+                    initial={{
+                      opacity: 0,
+                      y: 10,
+                    }}
+                    whileInView={{
+                      opacity: 1,
+                      y: 0,
+                    }}
+                    viewport={{
+                      once: true,
+                    }}
                     transition={{
                       duration: 0.5,
                       delay: 0.8,
@@ -496,18 +614,24 @@ export function FinalCTA() {
                     </div>
 
                     <p className="mt-3 text-xs font-medium leading-5 text-white">
-                      Authorization check can be bypassed.
+                      Authorization check can be
+                      bypassed.
                     </p>
 
                     <p className="mt-2 text-[10px] leading-5 text-zinc-500">
-                      The comparison uses the same identifier on both sides,
-                      so the ownership check does not validate the requesting
-                      user.
+                      The comparison uses the same
+                      identifier on both sides, so the
+                      ownership check does not validate
+                      the requesting user.
                     </p>
 
                     <div className="mt-3 flex items-center gap-2 font-mono text-[9px] text-red-300">
-                      <span>payment.service.ts</span>
-                      <span className="text-zinc-700">:</span>
+                      <span>
+                        payment.service.ts
+                      </span>
+                      <span className="text-zinc-700">
+                        :
+                      </span>
                       <span>45</span>
                     </div>
                   </motion.div>
@@ -570,19 +694,25 @@ export function FinalCTA() {
 
           {/* Flow */}
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs">
-            <span className="text-zinc-600">→</span>
+            <span className="text-zinc-600">
+              →
+            </span>
 
             <span className="text-zinc-400">
               AI investigates
             </span>
 
-            <span className="text-zinc-600">→</span>
+            <span className="text-zinc-600">
+              →
+            </span>
 
             <span className="text-zinc-400">
               team decides
             </span>
 
-            <span className="text-zinc-600">→</span>
+            <span className="text-zinc-600">
+              →
+            </span>
 
             <span className="text-emerald-300">
               ship with confidence

@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import {
-  ArrowDown,
   ArrowRight,
   Bot,
   Check,
@@ -55,7 +54,7 @@ const workflowSteps = [
     icon: CheckCircle2,
     accent: "fuchsia",
   },
-];
+] as const;
 
 const comments = [
   {
@@ -72,7 +71,7 @@ const comments = [
     text: "A negative amount can reach the payment provider.",
     accent: "orange",
   },
-];
+] as const;
 
 function WorkflowStep({
   step,
@@ -251,7 +250,7 @@ export function TeamWorkflow() {
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-[10%] top-[20%] h-[400px] w-[400px] rounded-full bg-violet-500/[0.025] blur-[130px]" />
 
-        <div className="absolute right-[8%] bottom-[10%] h-[450px] w-[450px] rounded-full bg-cyan-500/[0.025] blur-[140px]" />
+        <div className="absolute bottom-[10%] right-[8%] h-[450px] w-[450px] rounded-full bg-cyan-500/[0.025] blur-[140px]" />
 
         <div
           className="absolute inset-0 opacity-[0.018]"
@@ -288,6 +287,7 @@ export function TeamWorkflow() {
           >
             Your workflow stays the same.
             <br />
+
             <span className="bg-gradient-to-r from-white via-white/80 to-white/35 bg-clip-text text-transparent">
               Your reviews get better.
             </span>
@@ -498,7 +498,9 @@ export function TeamWorkflow() {
                     key={item.label}
                     className="rounded-xl border border-white/[0.05] bg-black/15 p-3 text-center"
                   >
-                    <div className={`font-mono text-sm ${item.className}`}>
+                    <div
+                      className={`font-mono text-sm ${item.className}`}
+                    >
                       {item.value}
                     </div>
 
@@ -542,7 +544,7 @@ export function TeamWorkflow() {
                 </div>
 
                 <div className="font-mono text-[9px] text-white/20">
-                  augment, don't replace
+                  augment, don&apos;t replace
                 </div>
               </div>
             </div>
@@ -550,6 +552,7 @@ export function TeamWorkflow() {
             <div className="mt-5 flex items-center gap-2">
               <div className="flex-1 rounded-xl border border-violet-400/10 bg-violet-500/[0.04] p-3 text-center">
                 <Bot className="mx-auto h-4 w-4 text-violet-300/70" />
+
                 <div className="mt-2 text-[9px] text-white/30">
                   AI analysis
                 </div>
@@ -559,6 +562,7 @@ export function TeamWorkflow() {
 
               <div className="flex-1 rounded-xl border border-emerald-400/10 bg-emerald-500/[0.04] p-3 text-center">
                 <User className="mx-auto h-4 w-4 text-emerald-300/70" />
+
                 <div className="mt-2 text-[9px] text-white/30">
                   Human decision
                 </div>
@@ -590,34 +594,28 @@ export function TeamWorkflow() {
               </div>
             </div>
 
-            <div className="mt-5">
-              <div className="flex items-center justify-between font-mono text-[9px]">
-                <span className="text-white/25">traditional</span>
-                <span className="text-white/30">hours</span>
+            <div className="mt-5 flex items-center gap-2">
+              <div className="flex-1 rounded-xl border border-cyan-400/10 bg-cyan-500/[0.04] p-3 text-center">
+                <GitPullRequest className="mx-auto h-4 w-4 text-cyan-300/70" />
+
+                <div className="mt-2 text-[9px] text-white/30">
+                  Open PR
+                </div>
               </div>
 
-              <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/[0.04]">
-                <div className="h-full w-[84%] rounded-full bg-white/10" />
-              </div>
+              <ArrowRight className="h-3.5 w-3.5 text-white/15" />
 
-              <div className="mt-4 flex items-center justify-between font-mono text-[9px]">
-                <span className="text-cyan-300/60">ReviewAI</span>
-                <span className="text-cyan-300/60">seconds</span>
-              </div>
+              <div className="flex-1 rounded-xl border border-emerald-400/10 bg-emerald-500/[0.04] p-3 text-center">
+                <Check className="mx-auto h-4 w-4 text-emerald-300/70" />
 
-              <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/[0.04]">
-                <motion.div
-                  initial={{ width: 0 }}
-                  whileInView={{ width: "22%" }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.8 }}
-                  className="h-full rounded-full bg-cyan-300/50"
-                />
+                <div className="mt-2 text-[9px] text-white/30">
+                  Review ready
+                </div>
               </div>
             </div>
           </motion.div>
 
-          {/* Merge confidence */}
+          {/* Engineering signal */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -627,71 +625,44 @@ export function TeamWorkflow() {
           >
             <div className="flex items-center gap-3">
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10">
-                <Check className="h-4 w-4 text-emerald-300" />
+                <Code2 className="h-4 w-4 text-emerald-300" />
               </div>
 
               <div>
                 <div className="text-sm font-medium text-white/70">
-                  Merge with confidence
+                  Better engineering signal
                 </div>
 
                 <div className="font-mono text-[9px] text-white/20">
-                  issues visible before approval
+                  less noise · more context
                 </div>
               </div>
             </div>
 
-            <div className="mt-5 flex items-end gap-1">
-              <span className="text-3xl font-semibold text-white/80">
-                96
-              </span>
+            <div className="mt-5 flex items-center gap-2">
+              <div className="flex-1 rounded-xl border border-white/[0.06] bg-black/15 p-3 text-center">
+                <ShieldAlert className="mx-auto h-4 w-4 text-orange-300/70" />
 
-              <span className="mb-1 text-sm text-white/30">%</span>
+                <div className="mt-2 text-[9px] text-white/30">
+                  Findings
+                </div>
+              </div>
 
-              <span className="mb-1 ml-auto font-mono text-[8px] text-emerald-300/60">
-                review confidence
-              </span>
-            </div>
+              <ArrowRight className="h-3.5 w-3.5 text-white/15" />
 
-            <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/[0.04]">
-              <motion.div
-                initial={{ width: 0 }}
-                whileInView={{ width: "96%" }}
-                viewport={{ once: true }}
-                transition={{ duration: 1 }}
-                className="h-full rounded-full bg-gradient-to-r from-emerald-400/40 to-emerald-300/80"
-              />
+              <div className="flex-1 rounded-xl border border-emerald-400/10 bg-emerald-500/[0.04] p-3 text-center">
+                <CheckCircle2 className="mx-auto h-4 w-4 text-emerald-300/70" />
+
+                <div className="mt-2 text-[9px] text-white/30">
+                  Actionable fixes
+                </div>
+              </div>
             </div>
           </motion.div>
         </div>
-
-        {/* Bottom statement */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          className="mt-14 flex flex-col items-center justify-center gap-3 text-center sm:flex-row"
-        >
-          <div className="flex items-center gap-2 text-sm text-white/30">
-            <Code2 className="h-4 w-4 text-violet-300/50" />
-            Developers write the code.
-          </div>
-
-          <ArrowRight className="hidden h-4 w-4 text-white/15 sm:block" />
-
-          <div className="flex items-center gap-2 text-sm text-white/30">
-            <Bot className="h-4 w-4 text-cyan-300/50" />
-            ReviewAI investigates it.
-          </div>
-
-          <ArrowRight className="hidden h-4 w-4 text-white/15 sm:block" />
-
-          <div className="flex items-center gap-2 text-sm text-white/30">
-            <CheckCircle2 className="h-4 w-4 text-emerald-300/50" />
-            Your team decides.
-          </div>
-        </motion.div>
       </div>
     </section>
   );
 }
+
+export default TeamWorkflow;

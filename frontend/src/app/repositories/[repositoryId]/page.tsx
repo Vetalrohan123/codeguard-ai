@@ -8,7 +8,6 @@ import {
   CheckCircle2,
   Code2,
   ExternalLink,
-  FileCode2,
   GitBranch,
   Loader2,
   LogOut,
@@ -208,12 +207,10 @@ function AlertMessage({
 
 function PullRequestCard({
   pullRequest,
-  repositoryId,
   defaultBranch,
   onOpen,
 }: {
   pullRequest: PullRequest;
-  repositoryId: string;
   defaultBranch: string;
   onOpen: () => void;
 }) {
@@ -234,13 +231,10 @@ function PullRequestCard({
       }}
       className="group relative cursor-pointer overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5 shadow-xl shadow-black/10 backdrop-blur-xl transition duration-300 hover:-translate-y-0.5 hover:border-violet-400/20 hover:bg-white/[0.04] hover:shadow-2xl hover:shadow-violet-950/10 focus:outline-none focus:ring-2 focus:ring-violet-500/40 sm:p-6"
     >
-      {/* Hover glow */}
       <div className="pointer-events-none absolute -right-20 -top-20 h-44 w-44 rounded-full bg-violet-500/[0.06] opacity-0 blur-3xl transition duration-500 group-hover:opacity-100" />
 
       <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-        {/* Main content */}
         <div className="flex min-w-0 gap-4">
-          {/* PR number */}
           <div className="flex shrink-0 flex-col items-center">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-violet-400/10 bg-violet-500/[0.06]">
               <span className="font-mono text-[10px] font-semibold text-violet-300">
@@ -250,18 +244,15 @@ function PullRequestCard({
           </div>
 
           <div className="min-w-0 flex-1">
-            {/* Title */}
             <h3 className="truncate text-base font-semibold tracking-tight text-white transition group-hover:text-violet-200 sm:text-lg">
               {pullRequest.title}
             </h3>
 
-            {/* Description */}
             <p className="mt-2 max-w-3xl truncate text-xs leading-5 text-zinc-600 sm:text-sm">
               {pullRequest.description ||
                 "No description provided."}
             </p>
 
-            {/* Metadata */}
             <div className="mt-4 flex flex-wrap items-center gap-2">
               {pullRequest.author && (
                 <span className="rounded-lg border border-white/[0.06] bg-white/[0.025] px-2.5 py-1.5 font-mono text-[9px] text-zinc-500">
@@ -289,7 +280,6 @@ function PullRequestCard({
           </div>
         </div>
 
-        {/* Right */}
         <div className="flex shrink-0 items-center justify-between gap-4 sm:justify-end">
           <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 font-mono text-[9px] uppercase tracking-wider text-emerald-300">
             {pullRequest.state}
@@ -506,10 +496,8 @@ export default function RepositoryPage({
     <main className="relative min-h-screen overflow-hidden bg-[#050506] text-white">
       <Background />
 
-      {/* Navbar */}
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/[0.05] bg-[#050506]/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          {/* Logo */}
           <button
             type="button"
             onClick={() =>
@@ -530,7 +518,6 @@ export default function RepositoryPage({
             </span>
           </button>
 
-          {/* Navigation */}
           <nav className="hidden items-center gap-1 md:flex">
             <button
               type="button"
@@ -553,7 +540,6 @@ export default function RepositoryPage({
             </button>
           </nav>
 
-          {/* Logout */}
           <button
             type="button"
             onClick={logout}
@@ -568,9 +554,7 @@ export default function RepositoryPage({
         </div>
       </header>
 
-      {/* Main */}
       <div className="mx-auto max-w-7xl px-4 pb-16 pt-28 sm:px-6 sm:pt-32 lg:px-8">
-        {/* Back */}
         <button
           type="button"
           onClick={() =>
@@ -583,7 +567,6 @@ export default function RepositoryPage({
           Back to repositories
         </button>
 
-        {/* Alerts */}
         {error && (
           <AlertMessage
             type="error"
@@ -600,16 +583,13 @@ export default function RepositoryPage({
 
         {repository && (
           <>
-            {/* Repository Header */}
             <section
               className={`${cardClass} relative mb-10 overflow-hidden`}
             >
-              {/* Glow */}
               <div className="pointer-events-none absolute right-0 top-0 h-80 w-80 rounded-full bg-violet-500/[0.06] blur-[100px]" />
 
               <div className="relative p-6 sm:p-8 lg:p-10">
                 <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-                  {/* Repository identity */}
                   <div className="flex min-w-0 items-start gap-5">
                     <div className="relative shrink-0">
                       <div className="absolute inset-0 rounded-2xl bg-violet-500/15 blur-xl" />
@@ -622,7 +602,6 @@ export default function RepositoryPage({
                     </div>
 
                     <div className="min-w-0">
-                      {/* Breadcrumb */}
                       <div className="mb-2 flex flex-wrap items-center gap-2 font-mono text-[9px] uppercase tracking-wider text-zinc-700">
                         <span>
                           {repository.owner}
@@ -659,7 +638,6 @@ export default function RepositoryPage({
                         {repository.full_name}
                       </p>
 
-                      {/* Repository metadata */}
                       <div className="mt-4 flex flex-wrap items-center gap-2">
                         <span className="flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.025] px-3 py-1.5 font-mono text-[9px] uppercase tracking-wider text-zinc-500">
                           <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.7)]" />
@@ -677,7 +655,6 @@ export default function RepositoryPage({
                     </div>
                   </div>
 
-                  {/* Actions */}
                   <div className="flex flex-col gap-2 sm:flex-row">
                     {repository.html_url && (
                       <button
@@ -720,7 +697,6 @@ export default function RepositoryPage({
               </div>
             </section>
 
-            {/* Repository metrics */}
             <section className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <div
                 className={`${cardClass} relative overflow-hidden p-5`}
@@ -791,7 +767,6 @@ export default function RepositoryPage({
               </div>
             </section>
 
-            {/* Pull Requests */}
             <section>
               <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
@@ -869,9 +844,6 @@ export default function RepositoryPage({
                         pullRequest={
                           pullRequest
                         }
-                        repositoryId={
-                          repositoryId
-                        }
                         defaultBranch={
                           repository.default_branch
                         }
@@ -887,7 +859,6 @@ export default function RepositoryPage({
               )}
             </section>
 
-            {/* Footer */}
             <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-white/[0.05] pt-6 sm:flex-row">
               <div className="flex items-center gap-2">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]" />

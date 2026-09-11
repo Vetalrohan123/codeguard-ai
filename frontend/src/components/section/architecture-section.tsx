@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import {
   Activity,
-  ArrowDown,
   ArrowRight,
   BrainCircuit,
   Check,
