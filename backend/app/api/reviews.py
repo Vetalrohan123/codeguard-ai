@@ -65,7 +65,6 @@ async def get_user_pull_request(
     """
     Get a pull request belonging to the authenticated user.
     """
-
     result = await db.execute(
         select(PullRequest)
         .join(
@@ -96,7 +95,6 @@ async def get_user_github_account(
     """
     Get the authenticated user's connected GitHub account.
     """
-
     result = await db.execute(
         select(GitHubAccount).where(
             GitHubAccount.user_id == user_id,
@@ -122,7 +120,6 @@ async def get_repository(
     """
     Get a repository belonging to the authenticated user.
     """
-
     result = await db.execute(
         select(Repository).where(
             Repository.id == repository_id,
@@ -155,7 +152,6 @@ def is_reviewable_file(
     Deleted files are skipped because their source content
     does not exist at the PR HEAD.
     """
-
     filename = github_file.get("filename")
 
     if not filename:
@@ -193,7 +189,6 @@ def raise_github_http_error(
     """
     Convert GitHub HTTP errors into FastAPI errors.
     """
-
     response = error.response
 
     if response.status_code == 401:
@@ -246,7 +241,6 @@ def build_review_summary(
     """
     Build a consistent review summary for the API/UI.
     """
-
     if ai_failed:
         summary = (
             "AI review failed. "
@@ -306,7 +300,6 @@ def build_persisted_context_budget_response(
     original BudgetResult and FilePriority Python objects
     no longer exist.
     """
-
     if not context_budget:
         return None
 
@@ -612,7 +605,6 @@ def build_review_job_response(
     Convert the database AnalysisJob model into the public
     ReviewJobResponse schema.
     """
-
     return ReviewJobResponse(
         job_id=job.id,
         review_id=job.review_id,
@@ -776,6 +768,7 @@ async def run_review(
     skipped_files: list[str] = []
 
     for github_file in changed_files:
+
         if not is_reviewable_file(github_file):
             filename = github_file.get("filename")
 
@@ -797,6 +790,7 @@ async def run_review(
             )
 
         except httpx.HTTPStatusError as error:
+
             if error.response.status_code == 404:
                 skipped_files.append(filename)
                 continue
@@ -881,6 +875,7 @@ async def run_review(
     result = None
 
     try:
+
         # ====================================================
         # 9. Flush review
         # ====================================================
@@ -905,7 +900,10 @@ async def run_review(
 
         files_analyzed = result.files_analyzed
         files_failed = result.files_failed
-        findings_count = len(result.findings)
+
+        findings_count = len(
+            result.findings
+        )
 
         static_findings_count = (
             result.static_findings
@@ -952,6 +950,7 @@ async def run_review(
             and files_analyzed == 0
         ):
             review.score = 0.0
+
         else:
             review.score = result.score
 
@@ -1073,8 +1072,8 @@ async def run_review(
 )
 @limiter.limit("10/minute")
 async def run_review_async(
-    request: Request,
     background_tasks: BackgroundTasks,
+    request: Request,
     pull_request_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -1144,6 +1143,7 @@ async def run_review_async(
     db.add(review)
 
     try:
+
         # ====================================================
         # 5. Flush Review
         # ====================================================
