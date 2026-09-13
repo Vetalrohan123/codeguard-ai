@@ -1,23 +1,27 @@
 from __future__ import annotations
 
+import asyncio
 import re
+
 from datetime import datetime, timezone
 
 import httpx
+
 from fastapi import (
     APIRouter,
-    BackgroundTasks,
     Depends,
     HTTPException,
     Request,
     status,
 )
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_current_user
 from app.core.rate_limit import limiter
 from app.database import get_db
+
 from app.models.analysis_job import AnalysisJob
 from app.models.github_account import GitHubAccount
 from app.models.pull_request import PullRequest
@@ -25,24 +29,29 @@ from app.models.repository import Repository
 from app.models.review import Review
 from app.models.review_finding import ReviewFinding
 from app.models.user import User
+
 from app.schemas.context_budget import (
     ContextBudgetResponse,
     ContextFileBudgetResponse,
     ContextPriorityResponse,
     ReviewContextBudgetResponse,
 )
+
 from app.schemas.review import (
     ReviewFindingResponse,
     ReviewResponse,
     ReviewRunResponse,
 )
+
 from app.schemas.review_job import ReviewJobResponse
+
 from app.services.analysis_job_service import AnalysisJobService
 from app.services.github_service import GitHubService
 from app.services.review_pipeline import (
     PipelineFile,
     ReviewPipeline,
 )
+
 from app.workers.review_tasks import run_review_job_background
 
 
@@ -65,6 +74,7 @@ async def get_user_pull_request(
     """
     Get a pull request belonging to the authenticated user.
     """
+
     result = await db.execute(
         select(PullRequest)
         .join(
@@ -95,6 +105,7 @@ async def get_user_github_account(
     """
     Get the authenticated user's connected GitHub account.
     """
+
     result = await db.execute(
         select(GitHubAccount).where(
             GitHubAccount.user_id == user_id,
@@ -120,6 +131,7 @@ async def get_repository(
     """
     Get a repository belonging to the authenticated user.
     """
+
     result = await db.execute(
         select(Repository).where(
             Repository.id == repository_id,
@@ -152,6 +164,7 @@ def is_reviewable_file(
     Deleted files are skipped because their source content
     does not exist at the PR HEAD.
     """
+
     filename = github_file.get("filename")
 
     if not filename:
@@ -189,6 +202,7 @@ def raise_github_http_error(
     """
     Convert GitHub HTTP errors into FastAPI errors.
     """
+
     response = error.response
 
     if response.status_code == 401:
@@ -241,6 +255,7 @@ def build_review_summary(
     """
     Build a consistent review summary for the API/UI.
     """
+
     if ai_failed:
         summary = (
             "AI review failed. "
@@ -300,6 +315,7 @@ def build_persisted_context_budget_response(
     original BudgetResult and FilePriority Python objects
     no longer exist.
     """
+
     if not context_budget:
         return None
 
@@ -391,9 +407,7 @@ def build_persisted_context_budget_response(
                 continue
 
             raw_current = (
-                raw_budget.get(
-                    "current_file"
-                )
+                raw_budget.get("current_file")
                 or {}
             )
 
@@ -605,6 +619,7 @@ def build_review_job_response(
     Convert the database AnalysisJob model into the public
     ReviewJobResponse schema.
     """
+
     return ReviewJobResponse(
         job_id=job.id,
         review_id=job.review_id,
@@ -711,6 +726,7 @@ async def run_review(
         ) from error
 
     head = pull_request_data.get("head") or {}
+
     head_sha = head.get("sha")
 
     if not head_sha:
@@ -768,7 +784,6 @@ async def run_review(
     skipped_files: list[str] = []
 
     for github_file in changed_files:
-
         if not is_reviewable_file(github_file):
             filename = github_file.get("filename")
 
@@ -790,7 +805,6 @@ async def run_review(
             )
 
         except httpx.HTTPStatusError as error:
-
             if error.response.status_code == 404:
                 skipped_files.append(filename)
                 continue
@@ -875,7 +889,6 @@ async def run_review(
     result = None
 
     try:
-
         # ====================================================
         # 9. Flush review
         # ====================================================
@@ -1061,7 +1074,7 @@ async def run_review(
 
 
 # ============================================================
-# RUN CODE REVIEW - FASTAPI BACKGROUND TASKS
+# RUN CODE REVIEW - FREE RENDER BACKGROUND EXECUTION
 # ============================================================
 
 
@@ -1072,17 +1085,23 @@ async def run_review(
 )
 @limiter.limit("10/minute")
 async def run_review_async(
-    background_tasks: BackgroundTasks,
     request: Request,
     pull_request_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> ReviewJobResponse:
     """
-    Start a CodeGuard review using FastAPI BackgroundTasks.
+    Start a CodeGuard review asynchronously.
 
-    This avoids requiring a separate Celery worker, which is
-    useful for the free Render deployment.
+    This implementation intentionally does NOT use FastAPI
+    BackgroundTasks because SlowAPI can interfere with
+    FastAPI's special parameter inspection.
+
+    Instead, asyncio.create_task() runs the independent
+    review coroutine after the job has been committed.
+
+    This allows the free Render web service to execute reviews
+    without requiring a paid Celery worker.
     """
 
     # ========================================================
@@ -1143,7 +1162,6 @@ async def run_review_async(
     db.add(review)
 
     try:
-
         # ====================================================
         # 5. Flush Review
         # ====================================================
@@ -1161,10 +1179,11 @@ async def run_review_async(
         )
 
         # ====================================================
-        # 7. Commit before starting background task
+        # 7. Commit BEFORE starting async task
         # ====================================================
 
         await db.commit()
+
         await db.refresh(job)
 
     except Exception as error:
@@ -1176,12 +1195,16 @@ async def run_review_async(
         ) from error
 
     # ========================================================
-    # 8. Schedule FastAPI background task
+    # 8. Start independent async review task
+    #
+    # IMPORTANT:
+    # Do not await this coroutine here.
+    #
+    # Awaiting it would make the endpoint synchronous again.
     # ========================================================
 
-    background_tasks.add_task(
-        run_review_job_background,
-        job.id,
+    asyncio.create_task(
+        run_review_job_background(job.id)
     )
 
     # ========================================================
@@ -1359,7 +1382,9 @@ async def get_review(
     )
 
     # Correct regex for:
+    #
     # "(2 AI, 0 static)"
+    #
     findings_match = re.search(
         r"\((\d+)\s+AI,\s+(\d+)\s+static\)",
         summary,
