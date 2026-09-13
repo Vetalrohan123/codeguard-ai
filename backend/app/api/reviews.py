@@ -4,13 +4,20 @@ import re
 from datetime import datetime, timezone
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from fastapi import (
+    APIRouter,
+    BackgroundTasks,
+    Depends,
+    HTTPException,
+    Request,
+    status,
+)
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.dependencies import get_current_user
 from app.core.rate_limit import limiter
-from app.database import AsyncSessionLocal, get_db
+from app.database import get_db
 from app.models.analysis_job import AnalysisJob
 from app.models.github_account import GitHubAccount
 from app.models.pull_request import PullRequest
@@ -36,7 +43,7 @@ from app.services.review_pipeline import (
     PipelineFile,
     ReviewPipeline,
 )
-from app.workers.review_tasks import run_review_task
+from app.workers.review_tasks import run_review_job_background
 
 
 router = APIRouter(
@@ -58,6 +65,7 @@ async def get_user_pull_request(
     """
     Get a pull request belonging to the authenticated user.
     """
+
     result = await db.execute(
         select(PullRequest)
         .join(
@@ -88,6 +96,7 @@ async def get_user_github_account(
     """
     Get the authenticated user's connected GitHub account.
     """
+
     result = await db.execute(
         select(GitHubAccount).where(
             GitHubAccount.user_id == user_id,
@@ -113,6 +122,7 @@ async def get_repository(
     """
     Get a repository belonging to the authenticated user.
     """
+
     result = await db.execute(
         select(Repository).where(
             Repository.id == repository_id,
@@ -145,6 +155,7 @@ def is_reviewable_file(
     Deleted files are skipped because their source content
     does not exist at the PR HEAD.
     """
+
     filename = github_file.get("filename")
 
     if not filename:
@@ -182,6 +193,7 @@ def raise_github_http_error(
     """
     Convert GitHub HTTP errors into FastAPI errors.
     """
+
     response = error.response
 
     if response.status_code == 401:
@@ -234,6 +246,7 @@ def build_review_summary(
     """
     Build a consistent review summary for the API/UI.
     """
+
     if ai_failed:
         summary = (
             "AI review failed. "
@@ -289,9 +302,11 @@ def build_persisted_context_budget_response(
     Convert persisted Review.context_budget JSONB into the
     public ReviewContextBudgetResponse schema.
 
-    This is used for persisted/Celery reviews where the original
-    BudgetResult and FilePriority Python objects no longer exist.
+    This is used for persisted background reviews where the
+    original BudgetResult and FilePriority Python objects
+    no longer exist.
     """
+
     if not context_budget:
         return None
 
@@ -597,6 +612,7 @@ def build_review_job_response(
     Convert the database AnalysisJob model into the public
     ReviewJobResponse schema.
     """
+
     return ReviewJobResponse(
         job_id=job.id,
         review_id=job.review_id,
@@ -936,7 +952,6 @@ async def run_review(
             and files_analyzed == 0
         ):
             review.score = 0.0
-
         else:
             review.score = result.score
 
@@ -1047,7 +1062,7 @@ async def run_review(
 
 
 # ============================================================
-# RUN CODE REVIEW - ASYNC / CELERY
+# RUN CODE REVIEW - FASTAPI BACKGROUND TASKS
 # ============================================================
 
 
@@ -1059,12 +1074,16 @@ async def run_review(
 @limiter.limit("10/minute")
 async def run_review_async(
     request: Request,
+    background_tasks: BackgroundTasks,
     pull_request_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> ReviewJobResponse:
     """
-    Queue a CodeGuard review for background execution.
+    Start a CodeGuard review using FastAPI BackgroundTasks.
+
+    This avoids requiring a separate Celery worker, which is
+    useful for the free Render deployment.
     """
 
     # ========================================================
@@ -1142,7 +1161,7 @@ async def run_review_async(
         )
 
         # ====================================================
-        # 7. Commit before enqueue
+        # 7. Commit before starting background task
         # ====================================================
 
         await db.commit()
@@ -1157,67 +1176,16 @@ async def run_review_async(
         ) from error
 
     # ========================================================
-    # 8. Queue Celery task
+    # 8. Schedule FastAPI background task
     # ========================================================
 
-    try:
-        run_review_task.delay(job.id)
-
-    except Exception as error:
-        async with AsyncSessionLocal() as error_db:
-            job_result = await error_db.execute(
-                select(AnalysisJob).where(
-                    AnalysisJob.id == job.id
-                )
-            )
-
-            failed_job = (
-                job_result.scalar_one_or_none()
-            )
-
-            if failed_job is not None:
-                await AnalysisJobService.mark_failed(
-                    db=error_db,
-                    job=failed_job,
-                    error_message=(
-                        "Failed to enqueue Celery task: "
-                        f"{error}"
-                    ),
-                )
-
-                review_result = await error_db.execute(
-                    select(Review).where(
-                        Review.id == review.id
-                    )
-                )
-
-                failed_review = (
-                    review_result.scalar_one_or_none()
-                )
-
-                if failed_review is not None:
-                    failed_review.status = "failed"
-                    failed_review.score = 0
-                    failed_review.summary = (
-                        "Review could not be queued "
-                        "for background execution."
-                    )
-                    failed_review.updated_at = (
-                        datetime.now(timezone.utc)
-                    )
-
-                await error_db.commit()
-
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=(
-                "Review could not be queued. "
-                "Please try again."
-            ),
-        ) from error
+    background_tasks.add_task(
+        run_review_job_background,
+        job.id,
+    )
 
     # ========================================================
-    # 9. Return queued job
+    # 9. Return queued job immediately
     # ========================================================
 
     return build_review_job_response(job)
@@ -1300,8 +1268,8 @@ async def get_review(
     """
     Get a persisted CodeGuard review result.
 
-    Used by the frontend after a Celery review job reaches
-    the completed state.
+    Used by the frontend after a background review job
+    reaches the completed state.
     """
 
     # ========================================================
@@ -1390,8 +1358,10 @@ async def get_review(
         re.IGNORECASE,
     )
 
+    # Correct regex for:
+    # "(2 AI, 0 static)"
     findings_match = re.search(
-        r"\((\d+)\s+AI,\s*(\d+)\s+static\)",
+        r"\((\d+)\s+AI,\s+(\d+)\s+static\)",
         summary,
         re.IGNORECASE,
     )
