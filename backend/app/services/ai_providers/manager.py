@@ -16,23 +16,16 @@ logger = logging.getLogger(__name__)
 
 class AIProviderManager:
     """
-    Manages the primary AI provider and optional fallback provider.
+    Manages the Gemini AI provider.
+
+    CodeGuard AI intentionally uses Gemini as its only AI provider.
 
     Responsibilities:
-    - Call the primary provider
-    - Retry transient primary-provider failures
-    - Fall back to the secondary provider after primary failure
-    - Retry transient fallback-provider failures
-    - Return the successful AI response
-    - Raise a clear error when all providers fail
-
-    Example:
-
-        Gemini
-           |
-           | transient/permanent failure
-           v
-        OpenAI
+    - Create the configured Gemini provider
+    - Call Gemini
+    - Retry transient Gemini failures
+    - Return the successful Gemini response
+    - Raise a clear AIProviderError when Gemini fails
 
     Retry behavior is controlled through application settings:
 
@@ -40,28 +33,32 @@ class AIProviderManager:
         AI_RETRY_BASE_DELAY_SECONDS
         AI_RETRY_MAX_DELAY_SECONDS
         AI_RETRY_JITTER_SECONDS
+
+    Architecture:
+
+        CodeGuard AI
+             |
+             v
+        AIProviderManager
+             |
+             v
+        GeminiProvider
+             |
+             v
+        Google Gemini API
     """
 
     def __init__(
         self,
-        primary_provider: AIProvider,
-        fallback_provider: AIProvider | None = None,
-        primary_name: str = "primary",
-        fallback_name: str | None = None,
+        provider: AIProvider,
+        provider_name: str = "gemini",
     ) -> None:
-        self.primary_provider = primary_provider
-        self.fallback_provider = fallback_provider
+        self.provider = provider
 
-        self.primary_name = (
-            primary_name.strip()
-            if primary_name
-            else "primary"
-        )
-
-        self.fallback_name = (
-            fallback_name.strip()
-            if fallback_name
-            else None
+        self.provider_name = (
+            provider_name.strip().lower()
+            if provider_name
+            else "gemini"
         )
 
     async def generate(
@@ -70,211 +67,177 @@ class AIProviderManager:
         user_prompt: str,
     ) -> str:
         """
-        Generate an AI response.
+        Generate an AI response using Gemini.
 
         Flow:
 
-            1. Try primary provider.
-            2. Retry transient primary failures.
-            3. If primary ultimately fails, try fallback.
-            4. Retry transient fallback failures.
-            5. If everything fails, raise AIProviderError.
+            1. Call Gemini.
+            2. Retry transient Gemini failures.
+            3. Return the successful response.
+            4. Raise AIProviderError if Gemini ultimately fails.
 
-        Non-retryable errors immediately move to the fallback provider.
+        There is intentionally no fallback provider.
         """
 
-        primary_error: Exception | None = None
-
-        async def primary_operation() -> str:
-            return await self.primary_provider.generate(
+        async def gemini_operation() -> str:
+            return await self.provider.generate(
                 system_prompt=system_prompt,
                 user_prompt=user_prompt,
             )
 
         try:
             logger.info(
-                "Starting primary AI provider | "
+                "Starting Gemini AI generation | "
                 "provider=%s",
-                self.primary_name,
+                self.provider_name,
             )
 
             response = await retry_async(
-                operation=primary_operation,
+                operation=gemini_operation,
                 should_retry=is_retryable_error,
                 max_retries=settings.AI_MAX_RETRIES,
                 base_delay=settings.AI_RETRY_BASE_DELAY_SECONDS,
                 max_delay=settings.AI_RETRY_MAX_DELAY_SECONDS,
                 jitter=settings.AI_RETRY_JITTER_SECONDS,
-                operation_name=(
-                    f"{self.primary_name} generation"
-                ),
+                operation_name="gemini generation",
             )
 
             logger.info(
-                "Primary AI provider succeeded | "
-                "provider=%s",
-                self.primary_name,
+                "Gemini AI generation succeeded | "
+                "provider=%s | chars=%d",
+                self.provider_name,
+                len(response),
             )
 
             return response
 
-        except Exception as error:
-            primary_error = error
+        except AIProviderError:
+            logger.exception(
+                "Gemini AI provider failed | "
+                "provider=%s",
+                self.provider_name,
+            )
+            raise
 
-            logger.warning(
-                "Primary AI provider failed | "
+        except Exception as error:
+            logger.exception(
+                "Unexpected Gemini AI provider failure | "
                 "provider=%s | error=%s",
-                self.primary_name,
+                self.provider_name,
                 error,
             )
 
-        if self.fallback_provider is None:
             raise AIProviderError(
-                f"Primary AI provider "
-                f"'{self.primary_name}' failed: "
-                f"{primary_error}"
-            ) from primary_error
-
-        fallback_name = (
-            self.fallback_name
-            or "fallback"
-        )
-
-        fallback_error: Exception | None = None
-
-        async def fallback_operation() -> str:
-            return await self.fallback_provider.generate(
-                system_prompt=system_prompt,
-                user_prompt=user_prompt,
-            )
-
-        try:
-            logger.info(
-                "Starting fallback AI provider | "
-                "provider=%s",
-                fallback_name,
-            )
-
-            response = await retry_async(
-                operation=fallback_operation,
-                should_retry=is_retryable_error,
-                max_retries=settings.AI_MAX_RETRIES,
-                base_delay=settings.AI_RETRY_BASE_DELAY_SECONDS,
-                max_delay=settings.AI_RETRY_MAX_DELAY_SECONDS,
-                jitter=settings.AI_RETRY_JITTER_SECONDS,
-                operation_name=(
-                    f"{fallback_name} generation"
-                ),
-            )
-
-            logger.info(
-                "Fallback AI provider succeeded | "
-                "provider=%s",
-                fallback_name,
-            )
-
-            return response
-
-        except Exception as error:
-            fallback_error = error
-
-            logger.exception(
-                "Fallback AI provider failed | "
-                "provider=%s",
-                fallback_name,
-            )
-
-        raise AIProviderError(
-            "All configured AI providers failed. "
-            f"Primary ({self.primary_name}): "
-            f"{primary_error}. "
-            f"Fallback ({fallback_name}): "
-            f"{fallback_error}"
-        ) from fallback_error
+                f"Gemini AI generation failed: {error}"
+            ) from error
 
     @classmethod
     def from_settings(
         cls,
-        primary_provider_name: str,
-        primary_model: str,
-        fallback_provider_name: str | None,
-        fallback_model: str | None,
+        provider_name: str | None = None,
+        model: str | None = None,
     ) -> "AIProviderManager":
         """
-        Build the provider manager from application configuration.
+        Build the Gemini provider manager from application settings.
+
+        The optional arguments are accepted so existing callers can
+        explicitly provide the provider/model.
+
+        If omitted, the application configuration is used.
 
         Example:
 
-            primary_provider_name = "gemini"
-            primary_model = "gemini-3.6-flash"
+            manager = AIProviderManager.from_settings()
 
-            fallback_provider_name = "openai"
-            fallback_model = "gpt-4o-mini"
+        Configuration:
+
+            AI_PROVIDER=gemini
+            AI_MODEL=gemini-3.6-flash
+            GEMINI_API_KEY=...
         """
 
-        normalized_primary = (
-            primary_provider_name.lower().strip()
-            if primary_provider_name
-            else ""
+        normalized_provider = (
+            provider_name.strip().lower()
+            if provider_name
+            else settings.AI_PROVIDER.strip().lower()
         )
 
-        if not normalized_primary:
+        if not normalized_provider:
             raise AIProviderError(
-                "Primary AI provider is not configured."
+                "AI provider is not configured."
             )
 
-        normalized_primary_model = (
-            primary_model.strip()
-            if primary_model
-            else ""
-        )
-
-        if not normalized_primary_model:
+        # CodeGuard AI supports Gemini only.
+        if normalized_provider != "gemini":
             raise AIProviderError(
-                "Primary AI model is not configured."
+                "Only Gemini is supported. "
+                "Set AI_PROVIDER=gemini."
             )
 
-        primary_provider = create_ai_provider(
-            provider=normalized_primary,
-            model=normalized_primary_model,
+        normalized_model = (
+            model.strip()
+            if model
+            else settings.AI_MODEL.strip()
         )
 
-        fallback_provider = None
+        if not normalized_model:
+            raise AIProviderError(
+                "Gemini AI model is not configured."
+            )
 
-        normalized_fallback = (
-            fallback_provider_name.lower().strip()
-            if fallback_provider_name
-            else ""
+        if not settings.GEMINI_API_KEY:
+            raise AIProviderError(
+                "GEMINI_API_KEY is not configured."
+            )
+
+        if not settings.GEMINI_API_KEY.strip():
+            raise AIProviderError(
+                "GEMINI_API_KEY is not configured."
+            )
+
+        logger.info(
+            "Initializing Gemini AI provider | model=%s",
+            normalized_model,
         )
 
-        if normalized_fallback:
-            effective_fallback_model = (
-                fallback_model.strip()
-                if fallback_model
-                and fallback_model.strip()
-                else normalized_primary_model
+        try:
+            gemini_provider = create_ai_provider(
+                provider="gemini",
+                model=normalized_model,
+            )
+        except AIProviderError:
+            logger.exception(
+                "Failed to initialize Gemini AI provider | "
+                "model=%s",
+                normalized_model,
+            )
+            raise
+        except Exception as error:
+            logger.exception(
+                "Unexpected error while initializing "
+                "Gemini AI provider | model=%s",
+                normalized_model,
             )
 
-            if normalized_fallback == normalized_primary:
-                logger.warning(
-                    "Fallback provider is the same as primary "
-                    "provider. Fallback will still be created, "
-                    "but this configuration provides no "
-                    "provider diversity."
-                )
-
-            fallback_provider = create_ai_provider(
-                provider=normalized_fallback,
-                model=effective_fallback_model,
-            )
+            raise AIProviderError(
+                f"Failed to initialize Gemini AI provider: {error}"
+            ) from error
 
         return cls(
-            primary_provider=primary_provider,
-            fallback_provider=fallback_provider,
-            primary_name=normalized_primary,
-            fallback_name=(
-                normalized_fallback
-                or None
-            ),
+            provider=gemini_provider,
+            provider_name="gemini",
         )
 
+
+def get_ai_provider_manager() -> AIProviderManager:
+    """
+    Create an AIProviderManager using the current application settings.
+
+    This helper provides a single, simple entry point for services that
+    need Gemini AI generation.
+    """
+
+    return AIProviderManager.from_settings(
+        provider_name=settings.AI_PROVIDER,
+        model=settings.AI_MODEL,
+    )

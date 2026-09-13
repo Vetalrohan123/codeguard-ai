@@ -11,15 +11,11 @@ from app.services.ai_providers.gemini import (
 from app.services.ai_providers.manager import (
     AIProviderManager,
 )
-from app.services.ai_providers.openai import (
-    OpenAIProvider,
-)
 
 __all__ = [
     "AIProvider",
     "AIProviderError",
     "GeminiProvider",
-    "OpenAIProvider",
     "AIProviderManager",
     "create_ai_provider",
 ]

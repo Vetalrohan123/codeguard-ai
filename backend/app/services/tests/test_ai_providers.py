@@ -10,9 +10,6 @@ from app.services.ai_providers.factory import (
 from app.services.ai_providers.gemini import (
     GeminiProvider,
 )
-from app.services.ai_providers.openai import (
-    OpenAIProvider,
-)
 
 
 def test_create_gemini_provider(
@@ -36,32 +33,54 @@ def test_create_gemini_provider(
     assert provider.model == "test-model"
 
 
-def test_create_openai_provider(
-    monkeypatch,
-):
-    monkeypatch.setattr(
-        "app.services.ai_providers.openai.settings.OPENAI_API_KEY",
-        "test-key",
-    )
-
-    provider = create_ai_provider(
-        provider="openai",
-        model="test-model",
-    )
-
-    assert isinstance(
-        provider,
-        OpenAIProvider,
-    )
-
-    assert provider.model == "test-model"
+def test_factory_rejects_openai():
+    with pytest.raises(
+        AIProviderError,
+        match="Only Gemini is supported",
+    ):
+        create_ai_provider(
+            provider="openai",
+            model="test-model",
+        )
 
 
 def test_factory_rejects_unknown_provider():
-    with pytest.raises(AIProviderError):
+    with pytest.raises(
+        AIProviderError,
+        match="Only Gemini is supported",
+    ):
         create_ai_provider(
             provider="unknown",
             model="test-model",
+        )
+
+
+def test_factory_rejects_empty_provider():
+    with pytest.raises(
+        AIProviderError,
+        match="Only Gemini is supported",
+    ):
+        create_ai_provider(
+            provider="",
+            model="test-model",
+        )
+
+
+def test_factory_rejects_empty_model(
+    monkeypatch,
+):
+    monkeypatch.setattr(
+        "app.services.ai_providers.gemini.settings.GEMINI_API_KEY",
+        "test-key",
+    )
+
+    with pytest.raises(
+        AIProviderError,
+        match="Gemini AI model is not configured",
+    ):
+        create_ai_provider(
+            provider="gemini",
+            model="",
         )
 
 
@@ -79,20 +98,6 @@ def test_gemini_requires_api_key(
         )
 
 
-def test_openai_requires_api_key(
-    monkeypatch,
-):
-    monkeypatch.setattr(
-        "app.services.ai_providers.openai.settings.OPENAI_API_KEY",
-        None,
-    )
-
-    with pytest.raises(AIProviderError):
-        OpenAIProvider(
-            model="test-model",
-        )
-
-
 class MockProvider(AIProvider):
     async def generate(
         self,
@@ -105,7 +110,7 @@ class MockProvider(AIProvider):
 @pytest.mark.asyncio
 async def test_mock_provider():
     provider = MockProvider(
-        model="mock-model"
+        model="mock-model",
     )
 
     result = await provider.generate(

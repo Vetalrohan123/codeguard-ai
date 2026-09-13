@@ -35,11 +35,13 @@ class AIReviewService:
     - Build semantic review prompts
     - Provide multi-file review context
     - Include static-analysis evidence
-    - Call the configured AI provider manager
-    - Support provider retry and fallback
+    - Call Gemini through AIProviderManager
     - Parse and validate AI responses
     - Validate finding file paths and line numbers
     - Support compatibility with ReviewOrchestrator
+
+    CodeGuard AI intentionally uses Gemini as its only AI provider.
+    There is no OpenAI provider and no fallback provider.
     """
 
     SYSTEM_PROMPT = """
@@ -275,38 +277,45 @@ Do not change the JSON structure.
 """.strip()
 
     def __init__(self) -> None:
-        self.provider = settings.AI_PROVIDER.lower().strip()
+        """
+        Initialize the AI review service.
 
+        CodeGuard AI uses Gemini only.
+        """
+
+        self.provider = settings.AI_PROVIDER.strip().lower()
         self.model = settings.AI_MODEL.strip()
 
-        self.fallback_provider = (
-            settings.AI_FALLBACK_PROVIDER.lower().strip()
-            if settings.AI_FALLBACK_PROVIDER
-            else ""
-        )
+        if self.provider != "gemini":
+            logger.error(
+                "Unsupported AI provider configured | provider=%s",
+                self.provider,
+            )
 
-        self.fallback_model = (
-            settings.AI_FALLBACK_MODEL.strip()
-            if settings.AI_FALLBACK_MODEL
-            else self.model
-        )
+            raise AIReviewError(
+                "Only Gemini is supported. "
+                "Set AI_PROVIDER=gemini."
+            )
+
+        if not self.model:
+            raise AIReviewError(
+                "Gemini AI model is not configured."
+            )
 
         try:
-            manager = AIProviderManager.from_settings(
-                primary_provider_name=self.provider,
-                primary_model=self.model,
-                fallback_provider_name=(
-                    self.fallback_provider or None
-                ),
-                fallback_model=self.fallback_model,
+            self.provider_manager = (
+                AIProviderManager.from_settings(
+                    provider_name=self.provider,
+                    model=self.model,
+                )
             )
 
         except AIProviderError as error:
             logger.error(
-                "Failed to initialize AI providers | "
-                "primary=%s | fallback=%s | error=%s",
+                "Failed to initialize Gemini AI provider | "
+                "provider=%s | model=%s | error=%s",
                 self.provider,
-                self.fallback_provider or "none",
+                self.model,
                 error,
             )
 
@@ -314,17 +323,11 @@ Do not change the JSON structure.
                 str(error)
             ) from error
 
-        self.provider_manager = manager
-
         logger.info(
             "AI Review Service initialized | "
-            "primary=%s/%s | fallback=%s/%s",
+            "provider=%s | model=%s",
             self.provider,
             self.model,
-            self.fallback_provider or "none",
-            self.fallback_model
-            if self.fallback_provider
-            else "none",
         )
 
     async def review_code(
@@ -378,9 +381,12 @@ Do not change the JSON structure.
 
         logger.info(
             "Starting AI review | "
+            "provider=%s | model=%s | "
             "file=%s | language=%s | "
             "chars=%d | static_findings=%d | "
             "context_files=%d",
+            self.provider,
+            self.model,
             file_path,
             language or "unknown",
             len(code),
@@ -395,7 +401,8 @@ Do not change the JSON structure.
 
             logger.info(
                 "AI response received | "
-                "file=%s | chars=%d",
+                "provider=%s | file=%s | chars=%d",
+                self.provider,
                 file_path,
                 len(raw_response),
             )
@@ -415,7 +422,8 @@ Do not change the JSON structure.
 
             logger.info(
                 "AI review completed | "
-                "file=%s | ai_findings=%d",
+                "provider=%s | file=%s | ai_findings=%d",
+                self.provider,
                 file_path,
                 len(result.findings),
             )
@@ -467,26 +475,19 @@ Do not change the JSON structure.
 
         effective_context = review_context
 
-        # ---------------------------------------------------------
-        # Compatibility:
-        # ReviewOrchestrator may pass related_files directly.
-        # ---------------------------------------------------------
         if (
             effective_context is None
             and related_files
         ):
-            effective_context = self._build_review_context_from_related_files(
-                current_path=path,
-                current_content=content,
-                current_language=language,
-                related_files=related_files,
+            effective_context = (
+                self._build_review_context_from_related_files(
+                    current_path=path,
+                    current_content=content,
+                    current_language=language,
+                    related_files=related_files,
+                )
             )
 
-        # ---------------------------------------------------------
-        # If the orchestrator already provided a ReviewContext,
-        # related_files are intentionally ignored to avoid creating
-        # duplicate context.
-        # ---------------------------------------------------------
         if (
             effective_context is not None
             and related_files
@@ -499,7 +500,10 @@ Do not change the JSON structure.
                 len(related_files),
             )
 
-        if effective_context is None and project_context:
+        if (
+            effective_context is None
+            and project_context
+        ):
             logger.debug(
                 "Received project_context without ReviewContext | "
                 "file=%s | chars=%d",
@@ -540,9 +544,6 @@ Do not change the JSON structure.
 
         context = ReviewContext()
 
-        # ---------------------------------------------------------
-        # Always add the current file first.
-        # ---------------------------------------------------------
         context.add_file(
             path=current_path,
             language=current_language or "unknown",
@@ -557,9 +558,6 @@ Do not change the JSON structure.
                 imports: list[str] = []
                 static_finding_count = 0
 
-                # -------------------------------------------------
-                # Already normalized ReviewFileContext.
-                # -------------------------------------------------
                 if isinstance(
                     related_file,
                     ReviewFileContext,
@@ -574,9 +572,6 @@ Do not change the JSON structure.
                         related_file.static_finding_count
                     )
 
-                # -------------------------------------------------
-                # Dictionary-style object.
-                # -------------------------------------------------
                 elif isinstance(
                     related_file,
                     dict,
@@ -626,9 +621,6 @@ Do not change the JSON structure.
                     ):
                         static_finding_count = 0
 
-                # -------------------------------------------------
-                # Generic object.
-                # -------------------------------------------------
                 else:
                     path = getattr(
                         related_file,
@@ -694,9 +686,6 @@ Do not change the JSON structure.
                     )
                     continue
 
-                # -------------------------------------------------
-                # Avoid adding the current file twice.
-                # -------------------------------------------------
                 if path == current_path:
                     continue
 
@@ -1081,15 +1070,20 @@ Do not blindly duplicate it.
         """
         Send the request through AIProviderManager.
 
-        Provider retry, timeout, error classification, and fallback
-        are handled by AIProviderManager.
+        AIProviderManager handles:
+        - Gemini provider calls
+        - retry behavior
+        - transient error classification
+        - Gemini provider errors
+
+        There is intentionally no fallback provider.
         """
 
         logger.info(
-            "Calling AI provider manager | "
-            "primary=%s | fallback=%s",
+            "Calling Gemini AI provider manager | "
+            "provider=%s | model=%s",
             self.provider,
-            self.fallback_provider or "none",
+            self.model,
         )
 
         try:
@@ -1101,34 +1095,34 @@ Do not blindly duplicate it.
             )
 
             logger.info(
-                "AI provider manager completed | "
-                "primary=%s | fallback=%s",
+                "Gemini AI provider manager completed | "
+                "provider=%s | model=%s",
                 self.provider,
-                self.fallback_provider or "none",
+                self.model,
             )
 
             return response
 
         except AIProviderError as error:
             logger.error(
-                "AI provider manager failed | "
-                "primary=%s | fallback=%s | error=%s",
+                "Gemini AI provider manager failed | "
+                "provider=%s | model=%s | error=%s",
                 self.provider,
-                self.fallback_provider or "none",
+                self.model,
                 error,
             )
 
             raise AIReviewError(
-                f"AI generation failed: {error}"
+                f"Gemini AI generation failed: {error}"
             ) from error
 
         except Exception as error:
             logger.exception(
-                "Unexpected AI provider manager failure"
+                "Unexpected Gemini AI provider manager failure"
             )
 
             raise AIReviewError(
-                "Unexpected AI generation failure: "
+                "Unexpected Gemini AI generation failure: "
                 f"{type(error).__name__}: {error}"
             ) from error
 
