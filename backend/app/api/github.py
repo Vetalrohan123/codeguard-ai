@@ -257,6 +257,10 @@ async def github_login(
 ):
     """
     Create a GitHub OAuth authorization URL.
+
+    A short-lived HttpOnly state cookie is created so the
+    OAuth callback can verify that the callback belongs to
+    the CodeGuard user who initiated the flow.
     """
 
     if not settings.GITHUB_CLIENT_ID:
@@ -298,17 +302,28 @@ async def github_login(
         }
     )
 
-    # Keep the current compatibility mechanism:
-    # user_id:random_state
+    # --------------------------------------------------------
+    # OAuth state cookie
+    # --------------------------------------------------------
     #
-    # The random state itself is still checked using
-    # compare_digest() in the callback.
+    # Development:
+    #   COOKIE_SECURE=false
+    #   COOKIE_SAME_SITE=lax
+    #
+    # Production:
+    #   COOKIE_SECURE=true
+    #   COOKIE_SAME_SITE=none
+    #
+    # SameSite=None is important when the frontend and API
+    # are hosted on different origins.
+    # --------------------------------------------------------
+
     response.set_cookie(
         key=OAUTH_STATE_COOKIE,
         value=f"{current_user.id}:{state}",
-        httponly=True,
-        secure=settings.APP_ENV == "production",
-        samesite="lax",
+        httponly=settings.COOKIE_HTTP_ONLY,
+        secure=settings.COOKIE_SECURE,
+        samesite=settings.COOKIE_SAME_SITE,
         max_age=600,
         path="/",
     )
